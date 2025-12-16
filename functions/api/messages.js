@@ -16,18 +16,60 @@ export async function onRequestOptions() {
     return setCorsHeaders(new Response(null, { status: 204 }));
 }
 
-// GET /api/messages - Fetch all messages
-export async function onRequestGet({ env }) {
+// GET /api/messages - Fetch messages with pagination
+export async function onRequestGet({ request, env }) {
     try {
+        // Parse query parameters from URL
+        const url = new URL(request.url);
+        const pageParam = url.searchParams.get('page');
+        const limitParam = url.searchParams.get('limit');
+
+        // Parse and validate pagination parameters
+        let page = parseInt(pageParam) || 1;
+        let limit = parseInt(limitParam) || 5;
+
+        // Ensure page is at least 1
+        if (page < 1) {
+            page = 1;
+        }
+
+        // Clamp limit to safe range (1-10)
+        if (limit < 1) {
+            limit = 1;
+        } else if (limit > 10) {
+            limit = 10;
+        }
+
+        // Calculate offset for pagination
+        const offset = (page - 1) * limit;
+
+        // Fetch limit + 1 rows to detect if more data exists
         const { results } = await env.DB.prepare(
-            'SELECT id, name, message, created_at FROM messages ORDER BY created_at DESC LIMIT 100'
-        ).all();
+            'SELECT id, name, message, created_at FROM messages ORDER BY created_at DESC LIMIT ? OFFSET ?'
+        )
+            .bind(limit + 1, offset)
+            .all();
+
+        // Determine if there are more results
+        const hasMore = results.length > limit;
+
+        // Slice to actual limit (remove the extra row used for detection)
+        const data = hasMore ? results.slice(0, limit) : results;
 
         return setCorsHeaders(
-            new Response(JSON.stringify({ success: true, data: results }), {
-                status: 200,
-                headers: { 'Content-Type': 'application/json' }
-            })
+            new Response(
+                JSON.stringify({
+                    success: true,
+                    data: data,
+                    page: page,
+                    limit: limit,
+                    hasMore: hasMore
+                }),
+                {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                }
+            )
         );
     } catch (error) {
         console.error('Error fetching messages:', error);

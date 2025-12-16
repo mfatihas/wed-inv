@@ -8,7 +8,8 @@
   <div v-else id="app" class="app">
     <Hero />
     <QuranVerse />
-    <Couple />
+    <Couple v-if="isDesktop" />
+    <CoupleMobile v-else />
     <Event />
     <Countdown />
     <Gallery />
@@ -19,12 +20,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import CinematicOpening from './components/CinematicOpening.vue';
 import MusicPlayer from './components/MusicPlayer.vue';
 import Hero from './components/Hero.vue';
 import QuranVerse from './components/QuranVerse.vue';
 import Couple from './components/Couple.vue';
+import CoupleMobile from './components/CoupleMobile.vue';
 import Event from './components/Event.vue';
 import Countdown from './components/Countdown.vue';
 import Gallery from './components/Gallery.vue';
@@ -35,12 +37,32 @@ import Footer from './components/Footer.vue';
 // Opening animation state
 const openingComplete = ref(false);
 
+// Responsive breakpoint detection
+const windowWidth = ref(window.innerWidth);
+const isDesktop = ref(windowWidth.value > 768);
+
+// Handle window resize
+const handleResize = () => {
+  windowWidth.value = window.innerWidth;
+  isDesktop.value = windowWidth.value > 768;
+};
+
 // Handle opening animation completion
 const handleOpeningComplete = () => {
   openingComplete.value = true;
   // Add loaded class to trigger main content animations
   document.body.classList.add('loaded');
 };
+
+// Setup resize listener
+onMounted(() => {
+  window.addEventListener('resize', handleResize);
+});
+
+// Cleanup
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize);
+});
 </script>
 
 <style>

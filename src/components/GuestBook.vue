@@ -51,7 +51,7 @@
       </div>
 
       <!-- Messages List -->
-      <div v-if="isLoading" class="loading-message">
+      <div v-if="isLoading && messages.length === 0" class="loading-message">
         <p>Memuat pesan...</p>
       </div>
 
@@ -60,6 +60,7 @@
           <div
             v-for="(message, index) in messages"
             :key="message.id"
+            :ref="el => setMessageRef(el, message.id)"
             class="message-card scroll-animate"
             :class="{ 'is-visible': isVisible, 'is-optimistic': message.isOptimistic }"
             :style="{ transitionDelay: `${(index * 0.1) + 0.4}s` }"
@@ -73,6 +74,18 @@
 
       <div v-else-if="!isLoading && !error" class="no-messages">
         <p>Belum ada pesan. Jadilah yang pertama!</p>
+      </div>
+
+      <!-- Load More Button -->
+      <div v-if="hasMore" class="load-more-wrapper">
+        <button 
+          @click="loadMoreMessages" 
+          class="load-more-btn"
+          :disabled="isLoadingMore"
+        >
+          <span v-if="!isLoadingMore">Muat Lebih Banyak</span>
+          <span v-else>Memuat...</span>
+        </button>
       </div>
     </div>
   </section>
@@ -94,29 +107,54 @@ const newMessage = ref({
 // Messages from API
 const messages = ref([]);
 const isLoading = ref(false);
+const isLoadingMore = ref(false);
 const isSubmitting = ref(false);
 const error = ref(null);
+
+// Pagination state
+const currentPage = ref(1);
+const hasMore = ref(false);
+
+// Animation tracking
+const animatedMessages = new Set();
+const messageRefs = new Map();
+let messageObserver = null;
 
 // API endpoint
 const API_URL = '/api/messages';
 
-// Load messages from API
-const loadMessages = async () => {
-  isLoading.value = true;
+// Load messages from API with pagination
+const loadMessages = async (page = 1, append = false) => {
+  // Set appropriate loading state
+  if (append) {
+    isLoadingMore.value = true;
+  } else {
+    isLoading.value = true;
+  }
   error.value = null;
   
   try {
-    const response = await fetch(API_URL);
+    const response = await fetch(`${API_URL}?page=${page}&limit=5`);
     const data = await response.json();
     
     if (data.success) {
       // Transform API data to match our format
-      messages.value = data.data.map(msg => ({
+      const newMessages = data.data.map(msg => ({
         id: msg.id,
         name: msg.name,
         message: msg.message,
         date: msg.created_at
       }));
+      
+      // Update pagination metadata
+      hasMore.value = data.hasMore;
+      
+      // Either replace or append messages
+      if (append) {
+        messages.value = [...messages.value, ...newMessages];
+      } else {
+        messages.value = newMessages;
+      }
     } else {
       throw new Error(data.error || 'Failed to load messages');
     }
@@ -124,8 +162,20 @@ const loadMessages = async () => {
     console.error('Failed to load messages:', e);
     error.value = 'Unable to load messages. Please try again later.';
   } finally {
-    isLoading.value = false;
+    if (append) {
+      isLoadingMore.value = false;
+    } else {
+      isLoading.value = false;
+    }
   }
+};
+
+// Load more messages
+const loadMoreMessages = async () => {
+  if (isLoadingMore.value || !hasMore.value) return;
+  
+  currentPage.value++;
+  await loadMessages(currentPage.value, true);
 };
 
 // Submit new message
@@ -210,11 +260,58 @@ const formatDate = (dateString) => {
   });
 };
 
-// Intersection Observer
+// Set message ref for animation tracking
+const setMessageRef = (el, messageId) => {
+  if (el) {
+    messageRefs.set(messageId, el);
+    // Observe new messages that haven't been animated yet
+    if (!animatedMessages.has(messageId) && messageObserver) {
+      messageObserver.observe(el);
+    }
+  }
+};
+
+// Initialize message animation observer
+const initMessageAnimations = () => {
+  messageObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const messageEl = entry.target;
+          const messageId = messageEl.querySelector('.message-text')?.closest('.message-card')?.getAttribute('data-id');
+          
+          // Find the message index to calculate stagger delay
+          const allMessages = Array.from(messageRefs.values());
+          const messageIndex = allMessages.indexOf(messageEl);
+          
+          // Apply cinematic animation with stagger
+          const staggerDelay = messageIndex * 150; // 150ms stagger
+          
+          setTimeout(() => {
+            messageEl.classList.add('animate-in');
+          }, staggerDelay);
+          
+          // Mark as animated and stop observing
+          if (messageId) {
+            animatedMessages.add(messageId);
+          }
+          messageObserver.unobserve(messageEl);
+        }
+      });
+    },
+    {
+      threshold: 0.2,
+      rootMargin: '0px 0px -50px 0px'
+    }
+  );
+};
+
+// Intersection Observer for section
 let observer = null;
 
 onMounted(() => {
   loadMessages();
+  initMessageAnimations();
 
   observer = new IntersectionObserver(
     (entries) => {
@@ -238,6 +335,9 @@ onMounted(() => {
 onUnmounted(() => {
   if (observer) {
     observer.disconnect();
+  }
+  if (messageObserver) {
+    messageObserver.disconnect();
   }
 });
 </script>
@@ -418,6 +518,65 @@ onUnmounted(() => {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Load More Button */
+.load-more-wrapper {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+  padding: var(--spacing-md) 0;
+}
+
+.load-more-btn {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  background-color: transparent;
+  color: var(--color-near-black);
+  border: 2px solid var(--color-gold);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-accent);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-cinematic);
+}
+
+.load-more-btn:hover:not(:disabled) {
+  background-color: var(--color-gold);
+  color: var(--color-white);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.load-more-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.load-more-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--color-gray);
+  color: var(--color-gray);
+}
+
+/* Cinematic Animation for Newly Loaded Messages */
+.message-card {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              transform 700ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.message-card.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Initial visibility for section scroll animation */
+.message-card.scroll-animate.is-visible {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 @keyframes fadeOut {

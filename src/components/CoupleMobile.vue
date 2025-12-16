@@ -13,8 +13,8 @@
 
       <!-- Couple Grid -->
       <div class="couple-grid">
-        <!-- Column 1: Groom Text -->
-        <div class="couple-text groom-text" ref="groomCardRef">
+        <!-- Groom Card -->
+        <div class="couple-card" ref="groomCardRef">
           <!-- Name Accent - Identity Marker -->
           <p 
             class="couple-accent text-accent"
@@ -38,26 +38,18 @@
           >
             {{ content.coupleSection.groom.bio }}
           </p>
-        </div>
-        
-        <!-- Column 2: Groom Image -->
-        <div 
-          class="couple-image groom-image"
-          :class="{ 'revealed': groomImageRevealed }"
-        >
-          <img src="../assets/crop-fatih.jpg" :alt="content.couple.groomFullName" />
-        </div>
-
-        <!-- Column 3: Bride Image -->
-        <div 
-          class="couple-image bride-image"
-          :class="{ 'revealed': brideImageRevealed }"
-        >
-          <img src="../assets/crop-novel.jpg" :alt="content.couple.brideFullName" />
+          
+          <!-- Portrait Image - Emotional Payoff (Last) -->
+          <div 
+            class="couple-image"
+            :class="{ 'revealed': groomImageRevealed }"
+          >
+            <img src="../assets/crop-fatih.jpg" :alt="content.couple.groomFullName" />
+          </div>
         </div>
 
-        <!-- Column 4: Bride Text -->
-        <div class="couple-text bride-text" ref="brideCardRef">
+        <!-- Bride Card -->
+        <div class="couple-card" ref="brideCardRef">
           <!-- Name Accent -->
           <p 
             class="couple-accent text-accent"
@@ -81,6 +73,14 @@
           >
             {{ content.coupleSection.bride.bio }}
           </p>
+          
+          <!-- Portrait Image (Last) -->
+          <div 
+            class="couple-image"
+            :class="{ 'revealed': brideImageRevealed }"
+          >
+            <img src="../assets/crop-novel.jpg" :alt="content.couple.brideFullName" />
+          </div>
         </div>
       </div>
 
@@ -310,41 +310,16 @@ onUnmounted(() => {
 }
 
 /* Couple Grid - Editorial Layout */
-/* Desktop: Option 2 - Small text | Large photo | Large photo | Small text */
 .couple-grid {
   display: grid;
-  grid-template-columns: 0.7fr 3fr 3fr 0.7fr;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  align-items: stretch;
-  max-width: 1600px;
-  margin-left: auto;
-  margin-right: auto;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-3xl);
+  margin-bottom: var(--spacing-xl); /* Reduced from 3xl to xl */
 }
 
-/* Text columns - smaller */
-.couple-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: var(--spacing-md);
-  text-align: center;
-}
-
-/* Image columns - larger */
-.couple-image {
+.couple-card {
   position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-portrait-editorial);
-  box-shadow: 0 12px 48px rgba(42, 40, 38, 0.12),
-              0 4px 16px rgba(42, 40, 38, 0.08);
-}
-
-.couple-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+  text-align: center;
 }
 
 /* Name Accent - Identity Marker */
@@ -497,75 +472,11 @@ onUnmounted(() => {
   line-height: var(--leading-loose);
 }
 
-/* Desktop Enhanced - Cinematic Layout - Option 2 */
-@media (min-width: 769px) {
-  /* Desktop: Large, prominent photos in center */
-  .couple-image {
-    max-width: 100%;
-    aspect-ratio: 4/5;
-    height: auto;
-    min-height: 500px;
-    margin-bottom: 0;
-  }
-
-  /* Desktop: Compact text sizing for side panels */
-  .couple-text {
-    max-width: 100%;
-  }
-
-  .couple-accent {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .couple-name {
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
-    line-height: 1.2;
-    margin-bottom: var(--spacing-xs);
-    letter-spacing: 0.01em;
-  }
-
-  .couple-bio {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    max-width: 100%;
-    margin-bottom: 0;
-  }
-
-  /* Enhanced story section for desktop */
-  .story-title {
-    font-size: clamp(2rem, 3vw, 2.5rem);
-  }
-
-  .story-content p {
-    font-size: 1.25rem;
-    line-height: 2;
-  }
-}
-
-/* Responsive - Mobile */
+/* Responsive */
 @media (max-width: 768px) {
   .couple-grid {
-    display: block;
-  }
-
-  /* Reset to vertical layout on mobile */
-  .couple-card {
-    display: block;
-    margin-bottom: var(--spacing-2xl);
-  }
-
-  .couple-text {
-    display: block;
-    padding: 0;
-  }
-
-  .couple-card .couple-text,
-  .couple-card .couple-image {
-    grid-column: initial;
-    grid-row: initial;
-    align-self: initial;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2xl);
   }
 
   .couple-story {
@@ -578,7 +489,6 @@ onUnmounted(() => {
   
   .couple-image {
     max-width: 400px;
-    min-height: initial;
   }
 }
 
