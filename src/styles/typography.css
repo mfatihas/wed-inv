@@ -1,0 +1,126 @@
+/**
+ * Typography Styles
+ * CSS variables and utility classes derived from typography configuration
+ */
+
+:root {
+  /* Font Families */
+  --font-display: 'Cormorant Garamond', serif;
+  --font-heading: 'Montserrat', sans-serif;
+  --font-body: 'Lora', serif;
+  --font-accent: 'Montserrat', sans-serif;
+
+  /* Font Sizes */
+  --text-caption: 0.875rem;
+  --text-body: 1rem;
+  --text-body-large: 1.125rem;
+  --text-h4: 1.5rem;
+  --text-h3: 2rem;
+  --text-h2: 3rem;
+  --text-h1: 4rem;
+  --text-display: 5rem;
+  --text-display-large: 6rem;
+
+  /* Font Weights */
+  --weight-light: 300;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  /* Line Heights */
+  --leading-tight: 1.1;
+  --leading-normal: 1.5;
+  --leading-relaxed: 1.7;
+  --leading-loose: 2;
+
+  /* Letter Spacing */
+  --tracking-tight: -0.02em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.05em;
+  --tracking-wider: 0.1em;
+  --tracking-widest: 0.2em;
+}
+
+/* Typography Role Utilities */
+
+/* Display / Editorial Title */
+.text-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  font-weight: var(--weight-light);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.02em;
+}
+
+.text-display-large {
+  font-family: var(--font-display);
+  font-size: var(--text-display-large);
+  font-weight: var(--weight-light);
+  line-height: var(--leading-tight);
+  letter-spacing: 0.02em;
+}
+
+/* Section Headings */
+.text-heading {
+  font-family: var(--font-heading);
+  font-size: var(--text-h2);
+  font-weight: var(--weight-medium);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-wide);
+}
+
+.text-heading-sm {
+  font-family: var(--font-heading);
+  font-size: var(--text-h3);
+  font-weight: var(--weight-medium);
+  line-height: 1.3;
+  letter-spacing: var(--tracking-wide);
+}
+
+/* Body Text */
+.text-body {
+  font-family: var(--font-body);
+  font-size: var(--text-body);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+}
+
+.text-body-large {
+  font-family: var(--font-body);
+  font-size: var(--text-body-large);
+  font-weight: var(--weight-regular);
+  line-height: var(--leading-relaxed);
+  letter-spacing: var(--tracking-normal);
+}
+
+/* Accent / Meta Text */
+.text-accent {
+  font-family: var(--font-accent);
+  font-size: var(--text-caption);
+  font-weight: var(--weight-medium);
+  line-height: var(--leading-normal);
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+}
+
+/* Responsive Typography */
+@media (max-width: 768px) {
+  :root {
+    --text-display: 3.5rem;
+    --text-display-large: 4rem;
+    --text-h2: 2rem;
+    --text-h3: 1.5rem;
+    --text-body-large: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --text-display: 2.5rem;
+    --text-display-large: 3rem;
+    --text-h2: 1.75rem;
+    --text-h3: 1.25rem;
+  }
+}
