@@ -17,7 +17,7 @@ export const content = {
     music: {
         youtubeId: 'ZeFpigRaXbI', // Romantic Wedding Instrumental (Replaceable)
         volume: 100, // Default volume percentage
-        autoplay: false, // Browsers often block autoplay, but we'll try
+        autoplay: true, // Browsers often block autoplay, but we'll try
     },
 
     // ========== WEDDING DATE & TIME ==========

@@ -11,6 +11,11 @@
 
       <!-- Form -->
       <div class="guestbook-form-wrapper scroll-animate" :class="{ 'is-visible': isVisible }" style="transition-delay: 0.2s;">
+        <!-- Error Message -->
+        <div v-if="error" class="error-message">
+          <p>{{ error }}</p>
+        </div>
+
         <form @submit.prevent="submitMessage" class="guestbook-form">
           <div class="form-group">
             <label for="name" class="text-accent">{{ content.guestBookSection.form.nameLabel }}</label>
@@ -20,6 +25,7 @@
               type="text"
               class="form-input"
               :placeholder="content.guestBookSection.form.namePlaceholder"
+              :disabled="isSubmitting"
               required
             />
           </div>
@@ -32,24 +38,30 @@
               class="form-input form-textarea"
               :placeholder="content.guestBookSection.form.messagePlaceholder"
               rows="4"
+              :disabled="isSubmitting"
               required
             ></textarea>
           </div>
 
-          <button type="submit" class="submit-btn">
-            <span>{{ content.guestBookSection.form.submitButton }}</span>
+          <button type="submit" class="submit-btn" :disabled="isSubmitting">
+            <span v-if="!isSubmitting">{{ content.guestBookSection.form.submitButton }}</span>
+            <span v-else>Mengirim...</span>
           </button>
         </form>
       </div>
 
       <!-- Messages List -->
-      <div class="messages-list" v-if="messages.length > 0">
+      <div v-if="isLoading" class="loading-message">
+        <p>Memuat pesan...</p>
+      </div>
+
+      <div class="messages-list" v-else-if="messages.length > 0">
         <TransitionGroup name="message">
           <div
             v-for="(message, index) in messages"
             :key="message.id"
             class="message-card scroll-animate"
-            :class="{ 'is-visible': isVisible }"
+            :class="{ 'is-visible': isVisible, 'is-optimistic': message.isOptimistic }"
             :style="{ transitionDelay: `${(index * 0.1) + 0.4}s` }"
           >
             <p class="message-text text-body">{{ message.message }}</p>
@@ -57,6 +69,10 @@
             <p class="message-date text-accent text-muted">{{ formatDate(message.date) }}</p>
           </div>
         </TransitionGroup>
+      </div>
+
+      <div v-else-if="!isLoading && !error" class="no-messages">
+        <p>Belum ada pesan. Jadilah yang pertama!</p>
       </div>
     </div>
   </section>
@@ -75,51 +91,113 @@ const newMessage = ref({
   message: ''
 });
 
-// Messages from localStorage
+// Messages from API
 const messages = ref([]);
+const isLoading = ref(false);
+const isSubmitting = ref(false);
+const error = ref(null);
 
-// Load messages from localStorage
-const loadMessages = () => {
-  const stored = localStorage.getItem('wedding-messages');
-  if (stored) {
-    try {
-      messages.value = JSON.parse(stored);
-    } catch (e) {
-      console.error('Failed to parse messages:', e);
-      messages.value = [];
+// API endpoint
+const API_URL = '/api/messages';
+
+// Load messages from API
+const loadMessages = async () => {
+  isLoading.value = true;
+  error.value = null;
+  
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    
+    if (data.success) {
+      // Transform API data to match our format
+      messages.value = data.data.map(msg => ({
+        id: msg.id,
+        name: msg.name,
+        message: msg.message,
+        date: msg.created_at
+      }));
+    } else {
+      throw new Error(data.error || 'Failed to load messages');
     }
+  } catch (e) {
+    console.error('Failed to load messages:', e);
+    error.value = 'Unable to load messages. Please try again later.';
+  } finally {
+    isLoading.value = false;
   }
 };
 
-// Save messages to localStorage
-const saveMessages = () => {
-  localStorage.setItem('wedding-messages', JSON.stringify(messages.value));
-};
-
 // Submit new message
-const submitMessage = () => {
+const submitMessage = async () => {
   if (!newMessage.value.name.trim() || !newMessage.value.message.trim()) {
     return;
   }
 
-  const message = {
-    id: Date.now(),
+  isSubmitting.value = true;
+  error.value = null;
+
+  // Create optimistic message for immediate UI feedback
+  const optimisticMessage = {
+    id: `temp-${Date.now()}`,
     name: newMessage.value.name.trim(),
     message: newMessage.value.message.trim(),
-    date: new Date().toISOString()
+    date: new Date().toISOString(),
+    isOptimistic: true
   };
 
-  // Add to beginning of array for newest first
-  messages.value.unshift(message);
-  
-  // Save to localStorage
-  saveMessages();
+  // Add optimistically to UI
+  messages.value.unshift(optimisticMessage);
 
-  // Reset form
+  // Reset form immediately for better UX
+  const submittedData = { ...newMessage.value };
   newMessage.value = {
     name: '',
     message: ''
   };
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        name: submittedData.name.trim(),
+        message: submittedData.message.trim()
+      })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      // Replace optimistic message with real data
+      const index = messages.value.findIndex(m => m.id === optimisticMessage.id);
+      if (index !== -1) {
+        // Use splice to properly trigger Vue reactivity and avoid duplicates
+        messages.value.splice(index, 1, {
+          id: data.data.id,
+          name: data.data.name,
+          message: data.data.message,
+          date: data.data.created_at,
+          isOptimistic: false
+        });
+      }
+    } else {
+      throw new Error(data.error || 'Failed to submit message');
+    }
+  } catch (e) {
+    console.error('Failed to submit message:', e);
+    error.value = 'Unable to submit your message. Please try again.';
+    
+    // Remove optimistic message on failure
+    messages.value = messages.value.filter(m => m.id !== optimisticMessage.id);
+    
+    // Restore form data so user doesn't lose their message
+    newMessage.value = submittedData;
+  } finally {
+    isSubmitting.value = false;
+  }
 };
 
 // Format date
@@ -173,6 +251,30 @@ onUnmounted(() => {
   margin-bottom: var(--spacing-xl);
 }
 
+/* Error Message */
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-md);
+  border-left: 4px solid #c33;
+}
+
+.error-message p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* Loading and No Messages States */
+.loading-message,
+.no-messages {
+  text-align: center;
+  padding: var(--spacing-xl);
+  color: var(--color-gray);
+  font-style: italic;
+}
+
 /* Form */
 .guestbook-form-wrapper {
   max-width: 600px;
@@ -215,6 +317,11 @@ onUnmounted(() => {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
+.form-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .form-input::placeholder {
   color: var(--color-gray);
   font-style: italic;
@@ -238,16 +345,22 @@ onUnmounted(() => {
   letter-spacing: var(--tracking-wide);
   text-transform: uppercase;
   transition: transform var(--duration-fast) var(--ease-luxury),
-              box-shadow var(--duration-fast) var(--ease-luxury);
+              box-shadow var(--duration-fast) var(--ease-luxury),
+              opacity var(--duration-fast) var(--ease-luxury);
 }
 
-.submit-btn:hover {
+.submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   box-shadow: var(--shadow-md);
 }
 
-.submit-btn:active {
+.submit-btn:active:not(:disabled) {
   transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* Messages List */
@@ -263,6 +376,11 @@ onUnmounted(() => {
   padding: var(--spacing-lg);
   border-radius: var(--radius-md);
   border-left: 4px solid var(--color-gold);
+}
+
+.message-card.is-optimistic {
+  opacity: 0.7;
+  border-left-color: var(--color-gray);
 }
 
 .message-text {
