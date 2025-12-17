@@ -17,7 +17,7 @@ export const content = {
     music: {
         youtubeId: 'ZeFpigRaXbI', // Romantic Wedding Instrumental (Replaceable)
         volume: 100, // Default volume percentage
-        autoplay: false, // Browsers often block autoplay, but we'll try
+        autoplay: true, // Browsers often block autoplay, but we'll try
     },
 
     // ========== WEDDING DATE & TIME ==========
@@ -58,6 +58,12 @@ export const content = {
     spiritual: {
         verse: 'Dan di antara tanda-tanda (kebesaran)-Nya ialah Dia menciptakan pasangan-pasangan untukmu dari jenismu sendiri, agar kamu cenderung dan merasa tenteram kepadanya, dan Dia menjadikan di antaramu rasa kasih dan sayang.',
         surah: 'QS. Ar-Rum: 21',
+    },
+
+    // ========== GREETING SECTION ==========
+    greeting: {
+        salam: 'Assalamu\'alaikum Warahmatullahi Wabarakatuh',
+        invitation: 'Dengan memohon rahmat dan ridho Allah SWT, kami bermaksud mengundang Bapak/Ibu/Saudara/i untuk menghadiri acara pernikahan kami. Doa dan restu Bapak/Ibu/Saudara/i merupakan karunia terindah bagi kami.',
     },
 
     // ========== COUPLE SECTION ==========

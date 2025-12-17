@@ -8,6 +8,7 @@
   <div v-else id="app" class="app">
     <Hero />
     <QuranVerse />
+    <GreetingSection />
     <Couple v-if="isDesktop" />
     <CoupleMobile v-else />
     <Event />
@@ -25,6 +26,7 @@ import CinematicOpening from './components/CinematicOpening.vue';
 import MusicPlayer from './components/MusicPlayer.vue';
 import Hero from './components/Hero.vue';
 import QuranVerse from './components/QuranVerse.vue';
+import GreetingSection from './components/GreetingSection.vue';
 import Couple from './components/Couple.vue';
 import CoupleMobile from './components/CoupleMobile.vue';
 import Event from './components/Event.vue';

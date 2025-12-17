@@ -12,7 +12,7 @@
       </div>
 
       <!-- 2x2 Grid Layout -->
-      <div class="couple-grid">
+      <div class="couple-grid" ref="gridRef">
         <!-- Row 1 Col 1: Groom Text -->
         <div class="couple-text groom-text" ref="groomCardRef">
           <p 
@@ -39,22 +39,20 @@
         
         <!-- Row 1 Col 2: Groom Image -->
         <div 
-          class="couple-image groom-image"
-          :class="{ 'revealed': groomImageRevealed }"
-        >
-          <img src="../assets/crop-novel.jpg" :alt="content.couple.groomFullName" />
-          <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
-        </div>
-
-        <!-- Row 2 Col 1: Bride Image -->
-        <div 
           class="couple-image bride-image"
           :class="{ 'revealed': brideImageRevealed }"
         >
           <img src="../assets/crop-fatih.jpg" :alt="content.couple.brideFullName" />
-          <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
-        </div>
+        </div> 
 
+        <!-- Row 2 Col 1: Bride Image -->
+         <div 
+          class="couple-image groom-image"
+          :class="{ 'revealed': groomImageRevealed }"
+        >
+          <img src="../assets/crop-novel.jpg" :alt="content.couple.groomFullName" />
+        </div>
+        
         <!-- Row 2 Col 2: Bride Text -->
         <div class="couple-text bride-text" ref="brideCardRef">
           <p 
@@ -105,6 +103,7 @@ import { content } from '../config/content.js';
 
 // Separate refs for individual observation
 const sectionRef = ref(null);
+const gridRef = ref(null);
 const groomCardRef = ref(null);
 const brideCardRef = ref(null);
 const storyRef = ref(null);
@@ -127,57 +126,65 @@ const brideImageRevealed = ref(false);
 // Story reveal state
 const storyRevealed = ref(false);
 
-// Sequential animation timing within each block (in milliseconds)
-const personDelays = {
-  pause: 200,        // Initial pause before starting
-  accent: 400,       // Role (as accent)
-  name: 800,         // Full name
-  bio: 1200,         // Body copy
-  image: 2000,       // Portrait image (LAST, after text settles)
+// Sequential animation timing (in milliseconds)
+// Order: Groom name → Bride photo → Bride name → Groom photo
+const animationDelays = {
+  // Groom text elements (first)
+  groomAccent: 200,
+  groomName: 600,
+  groomBio: 1000,
+  // Bride photo (second)
+  brideImage: 1800,
+  // Bride text elements (third)
+  brideAccent: 2600,
+  brideName: 3000,
+  brideBio: 3400,
+  // Groom photo (last)
+  groomImage: 4200,
 };
 
 // Observers
 let sectionObserver = null;
-let groomObserver = null;
-let brideObserver = null;
+let gridObserver = null;
 let storyObserver = null;
 
-// Trigger sequence for Groom (independent)
-const triggerGroomReveal = () => {
+// Trigger master sequence
+const triggerMasterSequence = () => {
+  // Groom text elements
   setTimeout(() => {
     groomAccentRevealed.value = true;
-  }, personDelays.pause);
+  }, animationDelays.groomAccent);
   
   setTimeout(() => {
     groomNameRevealed.value = true;
-  }, personDelays.accent);
+  }, animationDelays.groomName);
   
   setTimeout(() => {
     groomBioRevealed.value = true;
-  }, personDelays.name);
+  }, animationDelays.groomBio);
   
+  // Groom photo
   setTimeout(() => {
     groomImageRevealed.value = true;
-  }, personDelays.image);
-};
-
-// Trigger sequence for Bride (independent)
-const triggerBrideReveal = () => {
+  }, animationDelays.groomImage);
+  
+  // Bride text elements
   setTimeout(() => {
     brideAccentRevealed.value = true;
-  }, personDelays.pause);
+  }, animationDelays.brideAccent);
   
   setTimeout(() => {
     brideNameRevealed.value = true;
-  }, personDelays.accent);
+  }, animationDelays.brideName);
   
   setTimeout(() => {
     brideBioRevealed.value = true;
-  }, personDelays.name);
+  }, animationDelays.brideBio);
   
+  // Bride photo
   setTimeout(() => {
     brideImageRevealed.value = true;
-  }, personDelays.image);
+  }, animationDelays.brideImage);
 };
 
 onMounted(() => {
@@ -197,34 +204,18 @@ onMounted(() => {
     }
   );
 
-  // Groom card observer (independent, 60% visibility)
-  groomObserver = new IntersectionObserver(
+  // Grid observer - triggers master sequence
+  gridObserver = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          triggerGroomReveal();
-          groomObserver.disconnect();
+          triggerMasterSequence();
+          gridObserver.disconnect();
         }
       });
     },
     {
-      threshold: 0.6,  // 60% of Groom block must be visible
-      rootMargin: '0px'
-    }
-  );
-
-  // Bride card observer (independent, 60% visibility)
-  brideObserver = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          triggerBrideReveal();
-          brideObserver.disconnect();
-        }
-      });
-    },
-    {
-      threshold: 0.6,  // 60% of Bride block must be visible
+      threshold: 0.3,
       rootMargin: '0px'
     }
   );
@@ -250,12 +241,8 @@ onMounted(() => {
     sectionObserver.observe(sectionRef.value);
   }
   
-  if (groomCardRef.value) {
-    groomObserver.observe(groomCardRef.value);
-  }
-  
-  if (brideCardRef.value) {
-    brideObserver.observe(brideCardRef.value);
+  if (gridRef.value) {
+    gridObserver.observe(gridRef.value);
   }
   
   if (storyRef.value) {
@@ -265,8 +252,7 @@ onMounted(() => {
 
 onUnmounted(() => {
   if (sectionObserver) sectionObserver.disconnect();
-  if (groomObserver) groomObserver.disconnect();
-  if (brideObserver) brideObserver.disconnect();
+  if (gridObserver) gridObserver.disconnect();
   if (storyObserver) storyObserver.disconnect();
 });
 </script>
