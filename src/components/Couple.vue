@@ -42,7 +42,6 @@
           class="couple-image groom-image"
           :class="{ 'revealed': groomImageRevealed }"
         >
-          <div class="crown-accent crown-king"></div>
           <img src="../assets/crop-novel.jpg" :alt="content.couple.groomFullName" />
           <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
         </div>
@@ -52,7 +51,6 @@
           class="couple-image bride-image"
           :class="{ 'revealed': brideImageRevealed }"
         >
-          <div class="crown-accent crown-queen"></div>
           <img src="../assets/crop-fatih.jpg" :alt="content.couple.brideFullName" />
           <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
         </div>
@@ -414,12 +412,15 @@ onUnmounted(() => {
   transform: scale(1.05);
   transition: opacity 2000ms cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 2000ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  box-shadow: 0 12px 48px rgba(42, 40, 38, 0.12),
-              0 4px 16px rgba(42, 40, 38, 0.08);
-  /* Elegant border accent */
-  border: 2px solid rgba(198, 164, 116, 0.3);
-  outline: 1px solid rgba(198, 164, 116, 0.15);
-  outline-offset: -4px;
+  /* Ornate gold frame */
+  border: 8px solid rgba(198, 164, 116, 0.7);
+  outline: 3px solid rgba(198, 164, 116, 0.4);
+  outline-offset: 2px;
+  /* Shadow for depth */
+  box-shadow: 
+    0 12px 48px rgba(42, 40, 38, 0.15),
+    0 4px 16px rgba(42, 40, 38, 0.1),
+    inset 0 0 20px rgba(198, 164, 116, 0.15);
 }
 
 .couple-image.revealed {
@@ -432,30 +433,6 @@ onUnmounted(() => {
   height: 100%;
   object-fit: cover;
   object-position: center;
-}
-
-.crown-accent {
-  position: absolute;
-  top: -30px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 80px;
-  height: 80px;
-  background-image: url('../assets/crown-accent.png');
-  background-size: 300% 300%;
-  background-repeat: no-repeat;
-  z-index: 3;
-  opacity: 0.9;
-}
-
-/* King crown - middle row, left (red ornate crown) */
-.crown-king {
-  background-position: 0% 50%;
-}
-
-/* Queen crown - middle row, middle (purple ornate crown) */
-.crown-queen {
-  background-position: 50% 50%;
 }
 
 .frame-overlay {

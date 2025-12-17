@@ -396,22 +396,28 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Portrait Image - Editorial Soft-Rectangle Frame */
+/* Portrait Image - Editorial Frame with Ornate Gold Border */
 .couple-image {
   position: relative;
   width: 100%;
   max-width: 500px;
-  aspect-ratio: 3/4;
+  aspect-ratio: 2/3; /* Narrower, taller portrait */
   margin: 0 auto;
   overflow: hidden;
-  border-radius: var(--radius-portrait-editorial); /* Soft-rectangle, not circular */
+  border-radius: 45% / 35%; /* Balanced oval shape */
   opacity: 0;
   transform: scale(1.05);
   transition: opacity 2000ms cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 2000ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  /* Subtle cinematic depth - natural light separation */
-  box-shadow: 0 12px 48px rgba(42, 40, 38, 0.12),
-              0 4px 16px rgba(42, 40, 38, 0.08);
+  /* Ornate gold frame */
+  border: 8px solid rgba(198, 164, 116, 0.7);
+  outline: 3px solid rgba(198, 164, 116, 0.4);
+  outline-offset: 2px;
+  /* Shadow for depth */
+  box-shadow: 
+    0 12px 48px rgba(42, 40, 38, 0.15),
+    0 4px 16px rgba(42, 40, 38, 0.1),
+    inset 0 0 20px rgba(198, 164, 116, 0.15);
 }
 
 .couple-image.revealed {
@@ -488,7 +494,7 @@ onUnmounted(() => {
   }
   
   .couple-image {
-    max-width: 400px;
+    max-width: 220px;
   }
 }
 
@@ -498,8 +504,7 @@ onUnmounted(() => {
   }
 
   .couple-image {
-    aspect-ratio: 1/1;
-    max-width: 320px;
+    max-width: 200px;
   }
   
   .couple-name {
