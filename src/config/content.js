@@ -17,7 +17,7 @@ export const content = {
     music: {
         youtubeId: 'ZeFpigRaXbI', // Romantic Wedding Instrumental (Replaceable)
         volume: 100, // Default volume percentage
-        autoplay: true, // Browsers often block autoplay, but we'll try
+        autoplay: false, // Browsers often block autoplay, but we'll try
     },
 
     // ========== WEDDING DATE & TIME ==========
@@ -28,10 +28,10 @@ export const content = {
 
         // Display formats
         saveTheDate: 'Save the Date · 17 January 2026',
-        ceremonyDate: 'Saturday · 17 January 2026',
+        ceremonyDate: 'Sabtu · 17 January 2026',
         ceremonyTime: '08:00 WIB',
-        receptionDate: 'Saturday · 17 January 2026',
-        receptionTime: '12:00 WIB',
+        receptionDate: 'Sabtu · 17 January 2026',
+        receptionTime: '11:00 WIB',
     },
 
     // ========== VENUE INFORMATION ==========
@@ -81,10 +81,10 @@ export const content = {
     eventSection: {
         title: 'The Wedding',
         ceremony: {
-            type: 'Ceremony',
+            type: 'Akad Nikah',
         },
         reception: {
-            type: 'Reception',
+            type: 'Resepsi',
         },
         dressCodeLabel: 'Dress Code',
     },

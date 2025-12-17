@@ -110,12 +110,10 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: 120%;
-  background-image: linear-gradient(
-    135deg,
-    var(--color-beige) 0%,
-    var(--color-nude) 50%,
-    var(--color-beige) 100%
-  );
+  background-image: url('../assets/hero-bg.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   will-change: transform;
 }
 

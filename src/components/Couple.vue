@@ -11,11 +11,10 @@
         </h2>
       </div>
 
-      <!-- Couple Grid -->
+      <!-- 2x2 Grid Layout -->
       <div class="couple-grid">
-        <!-- Column 1: Groom Text -->
+        <!-- Row 1 Col 1: Groom Text -->
         <div class="couple-text groom-text" ref="groomCardRef">
-          <!-- Name Accent - Identity Marker -->
           <p 
             class="couple-accent text-accent"
             :class="{ 'revealed': groomAccentRevealed }"
@@ -23,7 +22,6 @@
             {{ content.coupleSection.groom.title.toUpperCase() }}
           </p>
           
-          <!-- Full Name - Title Card -->
           <h3 
             class="couple-name text-heading-sm"
             :class="{ 'revealed': groomNameRevealed }"
@@ -31,7 +29,6 @@
             {{ content.couple.groomFullName }}
           </h3>
           
-          <!-- Body Copy - Poetic Bio -->
           <p 
             class="couple-bio text-body"
             :class="{ 'revealed': groomBioRevealed }"
@@ -40,25 +37,28 @@
           </p>
         </div>
         
-        <!-- Column 2: Groom Image -->
+        <!-- Row 1 Col 2: Groom Image -->
         <div 
           class="couple-image groom-image"
           :class="{ 'revealed': groomImageRevealed }"
         >
-          <img src="../assets/crop-fatih.jpg" :alt="content.couple.groomFullName" />
+          <div class="crown-accent crown-king"></div>
+          <img src="../assets/crop-novel.jpg" :alt="content.couple.groomFullName" />
+          <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
         </div>
 
-        <!-- Column 3: Bride Image -->
+        <!-- Row 2 Col 1: Bride Image -->
         <div 
           class="couple-image bride-image"
           :class="{ 'revealed': brideImageRevealed }"
         >
-          <img src="../assets/crop-novel.jpg" :alt="content.couple.brideFullName" />
+          <div class="crown-accent crown-queen"></div>
+          <img src="../assets/crop-fatih.jpg" :alt="content.couple.brideFullName" />
+          <img src="../assets/portrait-frame.png" class="frame-overlay" alt="" />
         </div>
 
-        <!-- Column 4: Bride Text -->
+        <!-- Row 2 Col 2: Bride Text -->
         <div class="couple-text bride-text" ref="brideCardRef">
-          <!-- Name Accent -->
           <p 
             class="couple-accent text-accent"
             :class="{ 'revealed': brideAccentRevealed }"
@@ -66,7 +66,6 @@
             {{ content.coupleSection.bride.title.toUpperCase() }}
           </p>
           
-          <!-- Full Name -->
           <h3 
             class="couple-name text-heading-sm"
             :class="{ 'revealed': brideNameRevealed }"
@@ -74,7 +73,6 @@
             {{ content.couple.brideFullName }}
           </h3>
           
-          <!-- Body Copy -->
           <p 
             class="couple-bio text-body"
             :class="{ 'revealed': brideBioRevealed }"
@@ -309,45 +307,50 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Couple Grid - Editorial Layout */
-/* Desktop: Option 2 - Small text | Large photo | Large photo | Small text */
+/* 2x2 Grid Layout */
 .couple-grid {
   display: grid;
-  grid-template-columns: 0.7fr 3fr 3fr 0.7fr;
-  gap: var(--spacing-lg);
-  margin-bottom: var(--spacing-xl);
-  align-items: stretch;
-  max-width: 1600px;
-  margin-left: auto;
-  margin-right: auto;
+  grid-template-columns: 1fr 1fr;
+  column-gap: var(--spacing-3xl);
+  row-gap: var(--spacing-xs);
+  max-width: 1200px;
+  margin: 0 auto var(--spacing-2xl);
+  align-items: start;
 }
 
-/* Text columns - smaller */
+/* Text cells */
 .couple-text {
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  padding: var(--spacing-md);
-  text-align: center;
+  justify-content: flex-start;
+  padding: var(--spacing-lg);
 }
 
-/* Image columns - larger */
-.couple-image {
-  position: relative;
-  overflow: hidden;
-  border-radius: var(--radius-portrait-editorial);
-  box-shadow: 0 12px 48px rgba(42, 40, 38, 0.12),
-              0 4px 16px rgba(42, 40, 38, 0.08);
+/* Groom text - top left */
+.groom-text {
+  grid-column: 1;
+  grid-row: 1;
 }
 
-.couple-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
+/* Bride image - top right */
+.bride-image {
+  grid-column: 2;
+  grid-row: 1;
 }
 
-/* Name Accent - Identity Marker */
+/* Groom image - bottom left */
+.groom-image {
+  grid-column: 1;
+  grid-row: 2;
+}
+
+/* Bride text - bottom right */
+.bride-text {
+  grid-column: 2;
+  grid-row: 2;
+}
+
+/* Name Accent */
 .couple-accent {
   font-size: 0.75rem;
   letter-spacing: 0.15em;
@@ -365,10 +368,10 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Full Name - Title Card */
+/* Full Name */
 .couple-name {
   font-family: var(--font-display);
-  font-size: var(--text-display);
+  font-size: clamp(2rem, 4vw, 3.5rem);
   font-weight: var(--weight-light);
   line-height: 1.2;
   letter-spacing: 0.02em;
@@ -385,30 +388,9 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Role Label - Metadata */
-.couple-role {
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--color-gray);
-  font-weight: var(--weight-light);
-  margin-bottom: var(--spacing-md);
-  opacity: 0;
-  transform: translateY(10px);
-  transition: opacity 1000ms cubic-bezier(0.22, 0.61, 0.36, 1),
-              transform 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-
-.couple-role.revealed {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Body Copy - Poetic, Narrow Width */
+/* Bio */
 .couple-bio {
   color: var(--color-gray-dark);
-  max-width: 420px;
-  margin: 0 auto var(--spacing-lg);
   line-height: var(--leading-relaxed);
   opacity: 0;
   transform: translateY(15px);
@@ -421,22 +403,23 @@ onUnmounted(() => {
   transform: translateY(0);
 }
 
-/* Portrait Image - Editorial Soft-Rectangle Frame */
+/* Portrait Image */
 .couple-image {
   position: relative;
   width: 100%;
-  max-width: 500px;
   aspect-ratio: 3/4;
-  margin: 0 auto;
   overflow: hidden;
-  border-radius: var(--radius-portrait-editorial); /* Soft-rectangle, not circular */
+  border-radius: 50% / 40%;
   opacity: 0;
   transform: scale(1.05);
   transition: opacity 2000ms cubic-bezier(0.22, 0.61, 0.36, 1),
               transform 2000ms cubic-bezier(0.22, 0.61, 0.36, 1);
-  /* Subtle cinematic depth - natural light separation */
   box-shadow: 0 12px 48px rgba(42, 40, 38, 0.12),
               0 4px 16px rgba(42, 40, 38, 0.08);
+  /* Elegant border accent */
+  border: 2px solid rgba(198, 164, 116, 0.3);
+  outline: 1px solid rgba(198, 164, 116, 0.15);
+  outline-offset: -4px;
 }
 
 .couple-image.revealed {
@@ -451,17 +434,39 @@ onUnmounted(() => {
   object-position: center;
 }
 
-/* Asymmetric Editorial Nuance */
-/* Groom: Slightly firmer presence with marginally stronger shadow */
-.couple-card:first-child .couple-image {
-  box-shadow: 0 12px 52px rgba(42, 40, 38, 0.14),
-              0 4px 18px rgba(42, 40, 38, 0.10);
+.crown-accent {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 80px;
+  height: 80px;
+  background-image: url('../assets/crown-accent.png');
+  background-size: 300% 300%;
+  background-repeat: no-repeat;
+  z-index: 3;
+  opacity: 0.9;
 }
 
-/* Bride: Slightly softer presence with marginally softer shadow */
-.couple-card:last-child .couple-image {
-  box-shadow: 0 12px 44px rgba(42, 40, 38, 0.10),
-              0 4px 14px rgba(42, 40, 38, 0.06);
+/* King crown - middle row, left (red ornate crown) */
+.crown-king {
+  background-position: 0% 50%;
+}
+
+/* Queen crown - middle row, middle (purple ornate crown) */
+.crown-queen {
+  background-position: 50% 50%;
+}
+
+.frame-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 2;
 }
 
 /* Our Story Section */
@@ -497,43 +502,16 @@ onUnmounted(() => {
   line-height: var(--leading-loose);
 }
 
-/* Desktop Enhanced - Cinematic Layout - Option 2 */
+/* Desktop - Enhanced */
 @media (min-width: 769px) {
-  /* Desktop: Large, prominent photos in center */
+  .couple-grid {
+    gap: var(--spacing-2xl);
+  }
+  
   .couple-image {
-    max-width: 100%;
-    aspect-ratio: 4/5;
-    height: auto;
     min-height: 500px;
-    margin-bottom: 0;
   }
 
-  /* Desktop: Compact text sizing for side panels */
-  .couple-text {
-    max-width: 100%;
-  }
-
-  .couple-accent {
-    font-size: 0.7rem;
-    letter-spacing: 0.2em;
-    margin-bottom: var(--spacing-xs);
-  }
-
-  .couple-name {
-    font-size: clamp(1.5rem, 2.5vw, 2rem);
-    line-height: 1.2;
-    margin-bottom: var(--spacing-xs);
-    letter-spacing: 0.01em;
-  }
-
-  .couple-bio {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    max-width: 100%;
-    margin-bottom: 0;
-  }
-
-  /* Enhanced story section for desktop */
   .story-title {
     font-size: clamp(2rem, 3vw, 2.5rem);
   }
@@ -547,46 +525,34 @@ onUnmounted(() => {
 /* Responsive - Mobile */
 @media (max-width: 768px) {
   .couple-grid {
-    display: block;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
   }
-
-  /* Reset to vertical layout on mobile */
-  .couple-card {
-    display: block;
-    margin-bottom: var(--spacing-2xl);
+  
+  /* Reset grid positioning for mobile */
+  .groom-text,
+  .bride-image,
+  .groom-image,
+  .bride-text {
+    grid-column: 1;
+    grid-row: auto;
   }
 
   .couple-text {
-    display: block;
     padding: 0;
-  }
-
-  .couple-card .couple-text,
-  .couple-card .couple-image {
-    grid-column: initial;
-    grid-row: initial;
-    align-self: initial;
   }
 
   .couple-story {
     padding: var(--spacing-xl) 0 0;
   }
   
-  .couple-bio {
-    max-width: 100%;
-  }
-  
   .couple-image {
     max-width: 400px;
-    min-height: initial;
+    margin: 0 auto;
   }
 }
 
 @media (max-width: 480px) {
-  .couple-grid {
-    gap: var(--spacing-xl);
-  }
-
   .couple-image {
     aspect-ratio: 1/1;
     max-width: 320px;

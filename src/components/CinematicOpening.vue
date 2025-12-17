@@ -9,7 +9,7 @@
       }"
     >
       <img 
-        src="../assets/hero-bg.png" 
+        src="../assets/cinematic-bg.png" 
         alt="" 
         class="cinematic-bg-image"
       />
@@ -18,38 +18,17 @@
 
     <!-- Content Layer -->
     <div class="cinematic-content" v-if="showContent">
-      <!-- Couple Names with Letter-by-Letter Animation -->
-      <h1 class="cinematic-title">
-        <span class="cinematic-name cinematic-name-groom">
-          <span 
-            v-for="(letter, index) in name1Letters" 
-            :key="`name1-${index}`"
-            class="cinematic-letter"
-            :style="{ 
-              animationDelay: `${index * letterDelay}s`,
-              opacity: showLetters ? undefined : 0
-            }"
-          >
-            {{ letter }}
-          </span>
-        </span>
-        <span class="cinematic-ampersand" :style="{ opacity: showAmpersand ? undefined : 0 }">
-          &
-        </span>
-        <span class="cinematic-name cinematic-name-bride">
-          <span 
-            v-for="(letter, index) in name2Letters" 
-            :key="`name2-${index}`"
-            class="cinematic-letter"
-            :style="{ 
-              animationDelay: `${(name1Letters.length + index) * letterDelay}s`,
-              opacity: showLetters ? undefined : 0
-            }"
-          >
-            {{ letter }}
-          </span>
-        </span>
-      </h1>
+      <!-- Artistic Initials Image -->
+      <div 
+        class="cinematic-initials-container"
+        :class="{ 'show': showInitials }"
+      >
+        <img 
+          src="../assets/initials-fn-2.png" 
+          alt="F N" 
+          class="cinematic-initials-image"
+        />
+      </div>
 
       <!-- Subtitle -->
       <p 
@@ -102,18 +81,11 @@ const fadingOut = ref(false);
 const showBackground = ref(false);
 const showScaleMotion = ref(false);
 const showContent = ref(false);
-const showLetters = ref(false);
-const showAmpersand = ref(false);
+const showInitials = ref(false);
 const showSubtitle = ref(false);
 // New states for personalized gate
 const showRecipient = ref(false);
 const showCta = ref(false);
-
-// Couple names split into letters
-const name1 = content.couple.groomFirstName;
-const name2 = content.couple.brideFirstName;
-const name1Letters = ref(name1.split(''));
-const name2Letters = ref(name2.split(''));
 
 // Handle manual completion via button
 const handleEnter = () => {
@@ -137,27 +109,22 @@ const timing = {
   backgroundFadeStart: 500,      // Background start
   backgroundScaleStart: 800,     // Scale motion
   contentReveal: 2300,           // Content container visible
-  lettersStart: 2500,            // Names start
-  ampersandDelay: 2800,          // & appears
-  subtitleDelay: 5500,           // Subtitle appears
-  recipientDelay: 6500,          // "Kepada Yth" appears
-  ctaDelay: 7500,                // Button appears
+  initialsStart: 2500,           // Artistic initials image appears
+  subtitleDelay: 4200,           // Subtitle appears
+  recipientDelay: 5200,          // "Kepada Yth" appears
+  ctaDelay: 6200,                // Button appears
   // Auto-complete removed - waits for user interaction
 };
-
-// Letter-by-letter timing
-const letterDelay = 0.1; // 100ms delay between each letter
 
 // Animation sequence orchestration
 onMounted(() => {
   isPlaying.value = true;
 
-  // Phase 1-7: Standard Cinematic Sequence
+  // Phase 1-7: Cinematic Sequence with Artistic Initials
   setTimeout(() => showBackground.value = true, timing.backgroundFadeStart);
   setTimeout(() => showScaleMotion.value = true, timing.backgroundScaleStart);
   setTimeout(() => showContent.value = true, timing.contentReveal);
-  setTimeout(() => showLetters.value = true, timing.lettersStart);
-  setTimeout(() => showAmpersand.value = true, timing.ampersandDelay);
+  setTimeout(() => showInitials.value = true, timing.initialsStart);
   setTimeout(() => showSubtitle.value = true, timing.subtitleDelay);
 
   // Phase 8: Personalized Gate
@@ -242,63 +209,32 @@ onMounted(() => {
   max-width: 1200px;
 }
 
-/* Title - Flexbox for Asymmetric Layout */
-.cinematic-title {
+/* Artistic Initials Container */
+.cinematic-initials-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 8vw, 6rem);
-  font-weight: var(--weight-light);
-  line-height: 1;
-  letter-spacing: 0.02em;
-  color: var(--color-near-black);
-  margin-bottom: clamp(2rem, 4vw, 3rem); /* Increased breathing space */
-  gap: clamp(10px, 2vw, 30px);
-}
-
-.cinematic-name {
-  display: inline-block;
-  white-space: nowrap;
-}
-
-/* Asymmetric Composition Rules */
-
-/* Groom: Slightly higher, larger, tighter */
-.cinematic-name-groom {
-  transform: translateY(-12px);
-  font-size: 1.1em;
-  letter-spacing: -0.01em;
-}
-
-/* Bride: Slightly lower, smaller, relaxed */
-.cinematic-name-bride {
-  transform: translateY(12px);
-  font-size: 0.9em;
-  letter-spacing: 0.05em;
-}
-
-/* Individual Letter Animation */
-.cinematic-letter {
-  display: inline-block;
+  margin-bottom: clamp(2.5rem, 5vw, 4rem);
   opacity: 0;
-  animation: letterDrift 1200ms cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
+  transform: scale(0.98);
+  transition:
+    opacity 1600ms cubic-bezier(0.22, 0.61, 0.36, 1),
+    transform 1600ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
 
-/* Ampersand - Visual Pivot */
-.cinematic-ampersand {
-  display: inline-block;
-  font-style: italic;
-  font-weight: 300; /* Lighter */
-  font-size: 0.8em;
-  opacity: 0;
-  transform: translateX(6px); /* Off-center pivot */
-  transition: opacity 1500ms ease-in-out;
-  color: var(--color-gold); /* Subtle accent */
-}
-
-.cinematic-ampersand[style*="opacity: undefined"] {
+.cinematic-initials-container.show {
   opacity: 1;
+  transform: scale(1);
+}
+
+/* Artistic Initials Image */
+.cinematic-initials-image {
+  width: auto;
+  height: clamp(100px, 12vw, 200px);
+  max-width: 90%;
+  object-fit: contain;
+  filter: contrast(1.05) brightness(0.98);
+  will-change: opacity, transform;
 }
 
 /* Subtitle */
@@ -343,42 +279,10 @@ onMounted(() => {
   }
 }
 
-/* Letter Drift - Each letter fades in with upward movement */
-@keyframes letterDrift {
-  from {
-    opacity: 0;
-    transform: translateY(15px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .cinematic-title {
-    font-size: clamp(2rem, 10vw, 4rem);
-    flex-direction: column; /* Stack vertically on small screens */
-    gap: 0.5rem;
-  }
-  
-  /* Reset Asymmetry for vertical stack, or adjust specifically for vertical */
-  .cinematic-name-groom {
-    transform: none;
-    font-size: 1.1em;
-  }
-
-  .cinematic-name-bride {
-    transform: none;
-    font-size: 0.9em;
-  }
-
-  .cinematic-ampersand {
-    display: block;
-    transform: none;
-    margin: 0.2rem 0;
-    font-size: 0.6em;
+  .cinematic-initials-image {
+    height: clamp(120px, 20vw, 220px);
   }
 
   .cinematic-subtitle {
@@ -391,13 +295,12 @@ onMounted(() => {
     width: 85%;
   }
   
-  .cinematic-letter {
-    /* Slightly faster on mobile for better experience */
-    animation-duration: 1000ms;
+  .cinematic-initials-container {
+    margin-bottom: 1.5rem;
   }
   
-  .cinematic-title {
-    margin-bottom: 1.5rem;
+  .cinematic-initials-image {
+    height: clamp(100px, 24vw, 180px);
   }
   
   .recipient-name {
